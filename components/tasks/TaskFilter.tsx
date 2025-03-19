@@ -1,4 +1,4 @@
-
+"use client"
 import { useTaskStore } from '@/store/taskStore';
 import { TaskFilters, TaskStatus } from '@/types/task';
 

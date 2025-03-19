@@ -107,6 +107,7 @@ export async function PUT(
   }
 }
 
+// Complete the DELETE method in app/api/tasks/[id]/route.ts
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -116,3 +117,45 @@ export async function DELETE(
     if (!user) {
       return NextResponse.json(
         { message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const taskId = params.id;
+    
+    // Check if task exists
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      return NextResponse.json(
+        { message: 'Task not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user has permission to delete this task
+    if (user.role !== 'ADMIN' && task.authorId !== user.userId) {
+      return NextResponse.json(
+        { message: 'Access denied' },
+        { status: 403 }
+      );
+    }
+
+    // Delete task
+    await prisma.task.delete({
+      where: { id: taskId },
+    });
+
+    logger.info(`Task deleted: ${taskId} by user: ${user.userId}`);
+
+    return NextResponse.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    logger.error('Error deleting task:', error);
+    return NextResponse.json(
+      { message: 'Error deleting task' },
+      { status: 500 }
+    );
+  }
+}

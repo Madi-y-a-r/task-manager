@@ -1,4 +1,4 @@
-
+"use client"
 import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { CreateTaskInput, UpdateTaskInput, Task, TaskStatus } from '@/types/task';
