@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { getUserFromToken } from './lib/auth';
 import { logger } from './lib/logger';
 
+
 export async function middleware(request: NextRequest) {
   // Protected API routes
   if (request.nextUrl.pathname.startsWith('/api/tasks')) {
@@ -25,4 +26,5 @@ export const config = {
   matcher: [
     '/api/tasks/:path*',
   ],
+  runtime: 'nodejs', 
 };

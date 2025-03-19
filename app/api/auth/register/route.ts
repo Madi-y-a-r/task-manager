@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
+export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password } = await request.json();

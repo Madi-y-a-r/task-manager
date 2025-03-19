@@ -13,39 +13,41 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   
   fetchTasks: async (filters?: TaskFilters) => {
     set({ isLoading: true, error: null });
+
     try {
-      const currentFilters = filters || get().filters;
-      const queryParams = new URLSearchParams();
-      
-      if (currentFilters.status) {
-        queryParams.append('status', currentFilters.status);
+      const token = localStorage.getItem('token'); // ✅ Получаем токен
+      console.log('Token from localStorage:', token); // ✅ Логируем токен
+
+      if (!token) {
+        console.error('No token found in localStorage');
+        return;
       }
-      
-      if (currentFilters.sortBy) {
-        queryParams.append('sortBy', currentFilters.sortBy);
-      }
-      
-      if (currentFilters.sortOrder) {
-        queryParams.append('sortOrder', currentFilters.sortOrder);
-      }
-      
-      const response = await fetch(`/api/tasks?${queryParams.toString()}`, {
+
+      const response = await fetch('/api/tasks', {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`, // ✅ Передаем токен
+          'Content-Type': 'application/json',
         },
       });
-      
+
+      console.log('Request sent with Authorization:', `Bearer ${token}`); // ✅ Проверяем, уходит ли токен
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to fetch tasks');
       }
-      
+
       const data = await response.json();
+      console.log('Fetched Tasks:', data);
+
       set({ tasks: data, isLoading: false });
     } catch (error) {
+      console.error('Error fetching tasks:', error);
       set({ isLoading: false, error: error instanceof Error ? error.message : 'An unknown error occurred' });
     }
   },
+
   
   fetchTask: async (id: string) => {
     set({ isLoading: true, error: null });
@@ -53,6 +55,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       const response = await fetch(`/api/tasks/${id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
         },
       });
       

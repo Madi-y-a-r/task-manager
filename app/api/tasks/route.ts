@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { getUserFromToken } from '@/lib/auth';
 
+export const runtime = 'nodejs';
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request);
@@ -14,7 +15,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get query parameters
     const url = new URL(request.url);
     const status = url.searchParams.get('status') || undefined;
     const sortBy = url.searchParams.get('sortBy') || 'createdAt';
@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
       ...(user.role !== 'ADMIN' ? { authorId: user.userId } : {}),
     };
 
-    // Get tasks
     const tasks = await prisma.task.findMany({
       where,
       orderBy: {
@@ -63,9 +62,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         status,
-        author: {
-          connect: { id: user.userId },
-        },
+        authorId: user.userId,
       },
     });
 
